@@ -13,8 +13,6 @@
 
 using namespace std;
 
-
-
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -27,27 +25,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tableWidget_1->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->tableWidget_2->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->tableWidget_3->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    /*ui->tableWidget_1->insertRow(0);
-    ui->tableWidget_1->insertRow(1);
-    ui->tableWidget_1->insertRow(2);
-    ui->tableWidget_1->insertRow(1);
-    ui->tableWidget_1->removeRow(0);
-    ui->tableWidget_1->insertColumn(4);
-    int NUMG=1;
-    QString strNUMG=QString::number(NUMG);
-    QStringList name_table;
-    name_table << "asd" << "qwe" << "zxc";
-    ui->tableWidget_1->setVerticalHeaderLabels(name_table);
-    name_table <<"gfg";
-    name_table<<strNUMG;
-    ui->tableWidget_1->setHorizontalHeaderLabels(name_table);
-    for(int i = 0; i<6; i++){
-                QTableWidgetItem *item = new QTableWidgetItem();
-                item->setText(strNUMG);
-                strNUMG+="2";
-                ui->tableWidget_1->setItem(0,i,item);
-    }
-    ui->tableWidget_1->removeColumn(2);*/
 }
 
 MainWindow::~MainWindow()
@@ -60,7 +37,8 @@ int Table1AddRows=0;
 int Table2AddRows=0;
 int Table3AddRows=0;
 int Table3AddColumn=0;
-int NumAnswer;
+int NumAnswer=0;
+int ResultSize=0;
 
 void MainWindow::on_DirButton_clicked()
 {
@@ -81,8 +59,8 @@ void MainWindow::on_DirButton_clicked()
     Table3AddRows=0;
     Table3AddColumn=0;
     Results.clear();
-    //QString path = QFileDialog::getExistingDirectory(this,tr("Выбор папки с результатами"));
-    QString path = "C:/Users/Илья1/Desktop/Test";
+    QString path = QFileDialog::getExistingDirectory(this,tr("Выбор папки с результатами"));
+    //QString path = "C:/Users/Илья1/Desktop/Test";
     QDir dir(path);
     int count=0;
     QDirIterator ItR(dir, QDirIterator::Subdirectories );
@@ -94,8 +72,8 @@ void MainWindow::on_DirButton_clicked()
             count++;
             QTextStream stream(&file);
             QString TestName = stream.readLine();
-            //if (TestName==ui->lineEdit->text())
-            //{
+            if (TestName==ui->lineEdit->text())
+            {
                 Result r;
                 r.test_name = TestName;
                 r.user_name = stream.readLine();
@@ -108,11 +86,12 @@ void MainWindow::on_DirButton_clicked()
                     r.correct.push_back(stream.readLine());
                 }
                 Results.push_back(r);
-            //}
+            }
             file.close();
         }
     }
-    for (int i=0;i<Results.size();i++){                             //Table 1
+    ResultSize=Results.size();
+    for (int i=0;i<ResultSize;i++){                             //Table 1
         ui->tableWidget_1->insertRow(i);
         Table1AddRows++;
         for(int j = 0; j<4; j++){
@@ -146,7 +125,7 @@ void MainWindow::on_DirButton_clicked()
             }
             if (k==1){
                 int answerCorrect=0;
-                for (int j=0;j<Results.size();j++){
+                for (int j=0;j<ResultSize;j++){
                     if (Results.at(j).correct.at(i)=="1"){
                         answerCorrect++;
                     }
@@ -160,7 +139,7 @@ void MainWindow::on_DirButton_clicked()
     ui->tableWidget_2->setVerticalHeaderLabels(name_table2);         //
     QStringList name_table3;
     name_table3 << "Имя ученика\\Номер задания";
-    for (int i=0;i<Results.size();i++){                             //Table 3
+    for (int i=0;i<ResultSize;i++){                             //Table 3
         ui->tableWidget_3->insertRow(i);
         Table3AddRows++;
     }
@@ -170,7 +149,7 @@ void MainWindow::on_DirButton_clicked()
         name_table3<<QString::number(i+1);
     }
     ui->tableWidget_3->setHorizontalHeaderLabels(name_table3);
-    for (int i=0;i<Results.size();i++){
+    for (int i=0;i<ResultSize;i++){
         for (int j=0;j<NumAnswer+1;j++){
             QTableWidgetItem *item = new QTableWidgetItem();
             if(j==0){
