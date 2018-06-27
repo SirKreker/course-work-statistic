@@ -57,12 +57,18 @@ MainWindow::~MainWindow()
 
 vector <Result> Results;
 int Table1AddRows=0;
+int Table2AddRows=0;
+int NumAnswer;
 
 void MainWindow::on_DirButton_clicked()
 {
     for(int i=0;i<Table1AddRows;i++){
         ui->tableWidget_1->removeRow(0);
     }
+    for(int i=0;i<Table2AddRows;i++){
+        ui->tableWidget_2->removeRow(0);
+    }
+    Table1AddRows=0;
     Table1AddRows=0;
     Results.clear();
     //QString path = QFileDialog::getExistingDirectory(this,tr("Выбор папки с результатами"));
@@ -98,29 +104,50 @@ void MainWindow::on_DirButton_clicked()
             file.close();
         }
     }
-    for (int i=0;i<Results.size();i++){
+    for (int i=0;i<Results.size();i++){                             //Table 1
         ui->tableWidget_1->insertRow(i);
         Table1AddRows++;
         for(int j = 0; j<4; j++){
             QTableWidgetItem *item = new QTableWidgetItem();
             if (j==0){item->setText(Results.at(i).user_name);}
             if (j==1){
-                int NumAnswer = Results.at(i).num_answer.toInt();
+                NumAnswer = Results.at(i).num_answer.toInt();
                 int totalCorrect=0;
                 for(int k = 0; k<NumAnswer;k++){
                     if (Results.at(i).correct.at(k)=="1"){
                         totalCorrect++;
                     }
                 }
-            qDebug()<<totalCorrect;
-            qDebug()<<NumAnswer;
             double percent = 100*totalCorrect/NumAnswer;
-            qDebug()<<percent;
             item->setText(QString::number(percent));
             }
             if (j==2){item->setText(Results.at(i).time);}
             if (j==3){item->setText(Results.at(i).date);}
             ui->tableWidget_1->setItem(i,j,item);
         }
-    }
+    }                                                               //
+    QStringList name_table;
+    for (int i=0;i<NumAnswer;i++){                                  //Table 2
+        ui->tableWidget_2->insertRow(i);
+        Table2AddRows++;
+        name_table << "";
+        for(int k = 0; k<2;k++){
+            QTableWidgetItem *item = new QTableWidgetItem();
+            if (k==0){
+                item->setText(QString::number(i+1));
+            }
+            if (k==1){
+                int answerCorrect=0;
+                for (int j=0;j<Results.size();j++){
+                    if (Results.at(j).correct.at(i)=="1"){
+                        answerCorrect++;
+                    }
+                }
+                double percent = 100*answerCorrect/Results.size();
+                item->setText(QString::number(percent));
+            }
+            ui->tableWidget_2->setItem(i,k,item);
+        }
+    }                                                               //
+    ui->tableWidget_2->setVerticalHeaderLabels(name_table);
 }
