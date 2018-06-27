@@ -58,6 +58,8 @@ MainWindow::~MainWindow()
 vector <Result> Results;
 int Table1AddRows=0;
 int Table2AddRows=0;
+int Table3AddRows=0;
+int Table3AddColumn=0;
 int NumAnswer;
 
 void MainWindow::on_DirButton_clicked()
@@ -68,8 +70,16 @@ void MainWindow::on_DirButton_clicked()
     for(int i=0;i<Table2AddRows;i++){
         ui->tableWidget_2->removeRow(0);
     }
+    for(int i=0;i<Table3AddRows;i++){
+        ui->tableWidget_3->removeRow(0);
+    }
+    for(int i=0;i<Table3AddColumn;i++){
+        ui->tableWidget_3->removeColumn(1);
+    }
     Table1AddRows=0;
     Table1AddRows=0;
+    Table3AddRows=0;
+    Table3AddColumn=0;
     Results.clear();
     //QString path = QFileDialog::getExistingDirectory(this,tr("Выбор папки с результатами"));
     QString path = "C:/Users/Илья1/Desktop/Test";
@@ -98,8 +108,6 @@ void MainWindow::on_DirButton_clicked()
                     r.correct.push_back(stream.readLine());
                 }
                 Results.push_back(r);
-                //qDebug()<<str<<endl<<str1;
-                //qDebug()<<count;
             //}
             file.close();
         }
@@ -126,11 +134,11 @@ void MainWindow::on_DirButton_clicked()
             ui->tableWidget_1->setItem(i,j,item);
         }
     }                                                               //
-    QStringList name_table;
+    QStringList name_table2;
     for (int i=0;i<NumAnswer;i++){                                  //Table 2
         ui->tableWidget_2->insertRow(i);
         Table2AddRows++;
-        name_table << "";
+        name_table2 << "";
         for(int k = 0; k<2;k++){
             QTableWidgetItem *item = new QTableWidgetItem();
             if (k==0){
@@ -148,6 +156,35 @@ void MainWindow::on_DirButton_clicked()
             }
             ui->tableWidget_2->setItem(i,k,item);
         }
-    }                                                               //
-    ui->tableWidget_2->setVerticalHeaderLabels(name_table);
+    }
+    ui->tableWidget_2->setVerticalHeaderLabels(name_table2);         //
+    QStringList name_table3;
+    name_table3 << "Имя ученика\\Номер задания";
+    for (int i=0;i<Results.size();i++){                             //Table 3
+        ui->tableWidget_3->insertRow(i);
+        Table3AddRows++;
+    }
+    for (int i=0;i<NumAnswer;i++){
+        ui->tableWidget_3->insertColumn(i+1);
+        Table3AddColumn++;
+        name_table3<<QString::number(i+1);
+    }
+    ui->tableWidget_3->setHorizontalHeaderLabels(name_table3);
+    for (int i=0;i<Results.size();i++){
+        for (int j=0;j<NumAnswer+1;j++){
+            QTableWidgetItem *item = new QTableWidgetItem();
+            if(j==0){
+                item->setText(Results.at(i).user_name);
+            }
+            else {
+                if(Results.at(i).correct.at(j-1)=="1"){
+                    item->setText("+");
+                }
+                else{
+                    item->setText("-");
+                }
+            }
+            ui->tableWidget_3->setItem(i,j,item);
+        }
+    }
 }
