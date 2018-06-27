@@ -7,10 +7,10 @@ using namespace std;
 
 struct Result
 {
+    QString test_name;
     QString user_name;
     QString time;
     QString date;
-    QString test_name;
     QString num_answer;
     vector <QString> correct;
 

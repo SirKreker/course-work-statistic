@@ -96,11 +96,6 @@
           <string>Имя ученика\Номер задания</string>
          </property>
         </column>
-        <column>
-         <property name="text">
-          <string>20</string>
-         </property>
-        </column>
        </widget>
       </item>
      </layout>
@@ -127,6 +122,9 @@
       <width>421</width>
       <height>21</height>
      </rect>
+    </property>
+    <property name="text">
+     <string/>
     </property>
    </widget>
    <widget class="QLabel" name="label">

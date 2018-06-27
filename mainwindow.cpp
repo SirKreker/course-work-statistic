@@ -10,7 +10,10 @@
 #include <QCoreApplication>
 #include <QTextStream>
 #include <QDirIterator>
+
 using namespace std;
+
+
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -24,7 +27,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tableWidget_1->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->tableWidget_2->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->tableWidget_3->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    ui->tableWidget_1->insertRow(0);
+    /*ui->tableWidget_1->insertRow(0);
     ui->tableWidget_1->insertRow(1);
     ui->tableWidget_1->insertRow(2);
     ui->tableWidget_1->insertRow(1);
@@ -44,18 +47,7 @@ MainWindow::MainWindow(QWidget *parent) :
                 strNUMG+="2";
                 ui->tableWidget_1->setItem(0,i,item);
     }
-    ui->tableWidget_1->removeColumn(2);
-
-    /*QDirIterator ItR("C:/Users/Илья1/Desktop/Test/", QDir::Files);
-        while (ItR.hasNext()) {
-                QFile file("ItR.next()");               //файл-источник, который находится по адресу ItR
-                if(!file.open(QFile::ReadOnly)) {
-                    //return 0;
-                }
-                qDebug()<<"Конский прибамбас";
-                file.close();
-        }*/
-
+    ui->tableWidget_1->removeColumn(2);*/
 }
 
 MainWindow::~MainWindow()
@@ -63,7 +55,72 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+vector <Result> Results;
+int Table1AddRows=0;
+
 void MainWindow::on_DirButton_clicked()
 {
-    //ui->tableView->horizontalHeader()->setSectionResizeMode(/*номер столбца*/, QHeaderView::Stretch);
+    for(int i=0;i<Table1AddRows;i++){
+        ui->tableWidget_1->removeRow(0);
+    }
+    Table1AddRows=0;
+    Results.clear();
+    //QString path = QFileDialog::getExistingDirectory(this,tr("Выбор папки с результатами"));
+    QString path = "C:/Users/Илья1/Desktop/Test";
+    QDir dir(path);
+    int count=0;
+    QDirIterator ItR(dir, QDirIterator::Subdirectories );
+    while (ItR.hasNext()) {
+        ItR.next();
+        QFile file(ItR.filePath());
+        if(file.open(QFile::ReadOnly))
+        {
+            count++;
+            QTextStream stream(&file);
+            QString TestName = stream.readLine();
+            //if (TestName==ui->lineEdit->text())
+            //{
+                Result r;
+                r.test_name = TestName;
+                r.user_name = stream.readLine();
+                r.time = stream.readLine();
+                r.date = stream.readLine();
+                QString strNumAnswer = stream.readLine();
+                r.num_answer = strNumAnswer;
+                int NumAnswer = strNumAnswer.toInt();
+                for (int i=0;i<NumAnswer;i++){
+                    r.correct.push_back(stream.readLine());
+                }
+                Results.push_back(r);
+                //qDebug()<<str<<endl<<str1;
+                //qDebug()<<count;
+            //}
+            file.close();
+        }
+    }
+    for (int i=0;i<Results.size();i++){
+        ui->tableWidget_1->insertRow(i);
+        Table1AddRows++;
+        for(int j = 0; j<4; j++){
+            QTableWidgetItem *item = new QTableWidgetItem();
+            if (j==0){item->setText(Results.at(i).user_name);}
+            if (j==1){
+                int NumAnswer = Results.at(i).num_answer.toInt();
+                int totalCorrect=0;
+                for(int k = 0; k<NumAnswer;k++){
+                    if (Results.at(i).correct.at(k)=="1"){
+                        totalCorrect++;
+                    }
+                }
+            qDebug()<<totalCorrect;
+            qDebug()<<NumAnswer;
+            double percent = 100*totalCorrect/NumAnswer;
+            qDebug()<<percent;
+            item->setText(QString::number(percent));
+            }
+            if (j==2){item->setText(Results.at(i).time);}
+            if (j==3){item->setText(Results.at(i).date);}
+            ui->tableWidget_1->setItem(i,j,item);
+        }
+    }
 }
