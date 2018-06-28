@@ -69,11 +69,11 @@ void MainWindow::on_DirButton_clicked()
         QFile file(ItR.filePath());
         if(file.open(QFile::ReadOnly))
         {
-            count++;
             QTextStream stream(&file);
             QString TestName = stream.readLine();
             if (TestName==ui->lineEdit->text())
             {
+                count++;
                 Result r;
                 r.test_name = TestName;
                 r.user_name = stream.readLine();
@@ -90,80 +90,83 @@ void MainWindow::on_DirButton_clicked()
             file.close();
         }
     }
-    ResultSize=Results.size();
-    for (int i=0;i<ResultSize;i++){                             //Table 1
-        ui->tableWidget_1->insertRow(i);
-        Table1AddRows++;
-        for(int j = 0; j<4; j++){
-            QTableWidgetItem *item = new QTableWidgetItem();
-            if (j==0){item->setText(Results.at(i).user_name);}
-            if (j==1){
-                NumAnswer = Results.at(i).num_answer.toInt();
-                int totalCorrect=0;
-                for(int k = 0; k<NumAnswer;k++){
-                    if (Results.at(i).correct.at(k)=="1"){
-                        totalCorrect++;
+    if(count>0)
+    {
+        ResultSize=Results.size();
+        for (int i=0;i<ResultSize;i++){                             //Table 1
+            ui->tableWidget_1->insertRow(i);
+            Table1AddRows++;
+            for(int j = 0; j<4; j++){
+                QTableWidgetItem *item = new QTableWidgetItem();
+                if (j==0){item->setText(Results.at(i).user_name);}
+                if (j==1){
+                    NumAnswer = Results.at(i).num_answer.toInt();
+                    int totalCorrect=0;
+                    for(int k = 0; k<NumAnswer;k++){
+                        if (Results.at(i).correct.at(k)=="1"){
+                            totalCorrect++;
+                        }
+                    }
+                    double percent = 100*totalCorrect/NumAnswer;
+                    item->setText(QString::number(percent));
+                }
+                if (j==2){item->setText(Results.at(i).time);}
+                if (j==3){item->setText(Results.at(i).date);}
+                ui->tableWidget_1->setItem(i,j,item);
+            }
+        }                                                               //
+        QStringList name_table2;
+        for (int i=0;i<NumAnswer;i++){                                  //Table 2
+            ui->tableWidget_2->insertRow(i);
+            Table2AddRows++;
+            name_table2 << "";
+            for(int k = 0; k<2;k++){
+                QTableWidgetItem *item = new QTableWidgetItem();
+                if (k==0){
+                    item->setText(QString::number(i+1));
+                }
+                if (k==1){
+                    int answerCorrect=0;
+                    for (int j=0;j<ResultSize;j++){
+                        if (Results.at(j).correct.at(i)=="1"){
+                            answerCorrect++;
+                        }
+                    }
+                    double percent = 100*answerCorrect/Results.size();
+                    item->setText(QString::number(percent));
+                }
+                ui->tableWidget_2->setItem(i,k,item);
+            }
+        }
+        ui->tableWidget_2->setVerticalHeaderLabels(name_table2);         //
+        QStringList name_table3;
+        name_table3 << "Имя ученика\\Номер задания";
+        for (int i=0;i<ResultSize;i++){                             //Table 3
+            ui->tableWidget_3->insertRow(i);
+            Table3AddRows++;
+        }
+        for (int i=0;i<NumAnswer;i++){
+            ui->tableWidget_3->insertColumn(i+1);
+            Table3AddColumn++;
+            name_table3<<QString::number(i+1);
+        }
+        ui->tableWidget_3->setHorizontalHeaderLabels(name_table3);
+        for (int i=0;i<ResultSize;i++){
+            for (int j=0;j<NumAnswer+1;j++){
+                QTableWidgetItem *item = new QTableWidgetItem();
+                if(j==0){
+                    item->setText(Results.at(i).user_name);
+                }
+                else {
+                    if(Results.at(i).correct.at(j-1)=="1"){
+                        item->setText("+");
+                    }
+                    else{
+                        item->setText("-");
                     }
                 }
-            double percent = 100*totalCorrect/NumAnswer;
-            item->setText(QString::number(percent));
+                ui->tableWidget_3->setItem(i,j,item);
             }
-            if (j==2){item->setText(Results.at(i).time);}
-            if (j==3){item->setText(Results.at(i).date);}
-            ui->tableWidget_1->setItem(i,j,item);
-        }
-    }                                                               //
-    QStringList name_table2;
-    for (int i=0;i<NumAnswer;i++){                                  //Table 2
-        ui->tableWidget_2->insertRow(i);
-        Table2AddRows++;
-        name_table2 << "";
-        for(int k = 0; k<2;k++){
-            QTableWidgetItem *item = new QTableWidgetItem();
-            if (k==0){
-                item->setText(QString::number(i+1));
-            }
-            if (k==1){
-                int answerCorrect=0;
-                for (int j=0;j<ResultSize;j++){
-                    if (Results.at(j).correct.at(i)=="1"){
-                        answerCorrect++;
-                    }
-                }
-                double percent = 100*answerCorrect/Results.size();
-                item->setText(QString::number(percent));
-            }
-            ui->tableWidget_2->setItem(i,k,item);
-        }
-    }
-    ui->tableWidget_2->setVerticalHeaderLabels(name_table2);         //
-    QStringList name_table3;
-    name_table3 << "Имя ученика\\Номер задания";
-    for (int i=0;i<ResultSize;i++){                             //Table 3
-        ui->tableWidget_3->insertRow(i);
-        Table3AddRows++;
-    }
-    for (int i=0;i<NumAnswer;i++){
-        ui->tableWidget_3->insertColumn(i+1);
-        Table3AddColumn++;
-        name_table3<<QString::number(i+1);
-    }
-    ui->tableWidget_3->setHorizontalHeaderLabels(name_table3);
-    for (int i=0;i<ResultSize;i++){
-        for (int j=0;j<NumAnswer+1;j++){
-            QTableWidgetItem *item = new QTableWidgetItem();
-            if(j==0){
-                item->setText(Results.at(i).user_name);
-            }
-            else {
-                if(Results.at(i).correct.at(j-1)=="1"){
-                    item->setText("+");
-                }
-                else{
-                    item->setText("-");
-                }
-            }
-            ui->tableWidget_3->setItem(i,j,item);
         }
     }
 }
